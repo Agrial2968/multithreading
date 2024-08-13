@@ -2,31 +2,52 @@
 //  FeedViewController.swift
 //  Navigation
 //
-//  Created by user on 18.06.2024.
-//
 
 import UIKit
 
-class FeedViewController: UIViewController {
-    
-    let post = Post(title: "Первый пост")
-    
+final class FeedViewController: UIViewController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        let button = UIButton()
-        button.frame = CGRect(x: view.frame.width/2 - 50, y: view.frame.height/2 - 25, width: 100, height: 50)
-        button.backgroundColor = .green
-        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        view.addSubview(button)
+
+        view.backgroundColor = .systemTeal
+        
+        createSubView()
     }
     
-    @objc func buttonTapped() {
-        let postViewController = PostViewController()
-        postViewController.post = post
-        navigationController?.pushViewController(postViewController, animated: true)
+    private func createSubView() {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        stackView.distribution = .fillEqually
+        view.addSubview(stackView)
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            stackView.heightAnchor.constraint(equalToConstant: 200),
+            stackView.widthAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.widthAnchor, constant: -32)
+        ])
+        addPostButton(title: "Post number One", color: .systemPurple, to: stackView, selector: #selector(tapPostButton))
+        addPostButton(title: "Post number Two", color: .systemIndigo, to: stackView, selector: #selector(tapPostButton))
+    }
+    
+    private func addPostButton(title: String, color: UIColor, to view: UIStackView, selector: Selector) {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(title, for: .normal)
+        button.backgroundColor = color
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = LayoutConstants.cornerRadius
+        button.addTarget(self, action: selector, for: .touchUpInside)
+        view.addArrangedSubview(button)
+    }
+    
+    @objc func tapPostButton() {
+        let post = postExamples[0]
+        
+        let postVC = PostViewController()
+        postVC.post = post
+        navigationController?.pushViewController(postVC, animated: true)
     }
 }
-
-
-
