@@ -5,9 +5,11 @@
 
 import UIKit
 import StorageService
+import iOSIntPackage
 
 class PostTableViewCell: UITableViewCell {
     
+    let imageProcessor = ImageProcessor()
     private var viewCounter = 0
 
     // MARK: Visual objects
@@ -23,6 +25,7 @@ class PostTableViewCell: UITableViewCell {
 
     var postImage: UIImageView = {
         let image = UIImageView()
+        
         image.translatesAutoresizingMaskIntoConstraints = false
         image.backgroundColor = .black
         image.contentMode = .scaleAspectFill
@@ -97,10 +100,15 @@ class PostTableViewCell: UITableViewCell {
     func configPostArray(post: Post) {
         postAuthor.text = post.author
         postDescription.text = post.description
-        postImage.image = UIImage(named: post.image)
         postLikes.text = "Likes: \(post.likes)"
         viewCounter = post.views
         postViews.text = "Views: \(viewCounter)"
+        
+        if let image = UIImage(named: post.image) {
+            imageProcessor.processImage(sourceImage: image, filter: .colorInvert) { resultImage in
+                postImage.image = resultImage
+            }
+        }
     }
     
     func incrementPostViewsCounter() {
