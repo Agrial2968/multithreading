@@ -7,6 +7,8 @@ import UIKit
 
 final class LoginViewController: UIViewController {
     
+    var currentUserService: UserService?
+    
     // MARK: Visual content
     
     var loginScrollView: UIScrollView = {
@@ -92,6 +94,17 @@ final class LoginViewController: UIViewController {
         return password
     }()
     
+    var errorLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Invalid login"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = UIColor.red
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.isHidden = true
+        return label
+    }()
+    
     // MARK: - Setup section
     
     override func viewDidLoad() {
@@ -101,13 +114,14 @@ final class LoginViewController: UIViewController {
         navigationController?.navigationBar.isHidden = true
         
         setupViews()
+        configureUserService()
     }
     
     private func setupViews() {
         view.addSubview(loginScrollView)
         loginScrollView.addSubview(contentView)
         
-        contentView.addSubviews(vkLogo, loginStackView, loginButton)
+        contentView.addSubviews(vkLogo, loginStackView, loginButton, errorLabel)
         
         loginStackView.addArrangedSubview(loginField)
         loginStackView.addArrangedSubview(passwordField)
@@ -120,34 +134,48 @@ final class LoginViewController: UIViewController {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-
+            
             loginScrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             loginScrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             loginScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             loginScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            
             contentView.topAnchor.constraint(equalTo: loginScrollView.topAnchor),
             contentView.trailingAnchor.constraint(equalTo: loginScrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: loginScrollView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: loginScrollView.leadingAnchor),
             contentView.centerXAnchor.constraint(equalTo: loginScrollView.centerXAnchor),
             contentView.centerYAnchor.constraint(equalTo: loginScrollView.centerYAnchor),
-
+            
             vkLogo.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 120),
             vkLogo.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             vkLogo.heightAnchor.constraint(equalToConstant: 100),
             vkLogo.widthAnchor.constraint(equalToConstant: 100),
-
+            
             loginStackView.topAnchor.constraint(equalTo: vkLogo.bottomAnchor, constant: 120),
             loginStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.leadingMargin),
             loginStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: LayoutConstants.trailingMargin),
             loginStackView.heightAnchor.constraint(equalToConstant: 100),
-
+            
             loginButton.topAnchor.constraint(equalTo: loginStackView.bottomAnchor, constant: LayoutConstants.indent),
             loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.leadingMargin),
             loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: LayoutConstants.trailingMargin),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
-        ])
+            
+            errorLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 8),
+            errorLabel.leadingAnchor.constraint(equalTo: loginButton.leadingAnchor),
+            errorLabel.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor),
+            errorLabel.heightAnchor.constraint(equalToConstant: 20)
+        ] )
+    }
+    
+    private func configureUserService() {
+        
+         #if DEBUG
+        currentUserService = TestUserService(user: User(login: "test", avatar: UIImage(named: "19"), fullName: "Test Agrial", status: "Test success"))
+         #else
+        currentUserService = CurrentUserService(user: User(login: "agrial", avatar: UIImage(named: "20"), fullName: "Agrial West", status: "Ready to deploy"))
+         #endif
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -170,7 +198,16 @@ final class LoginViewController: UIViewController {
 
     @objc private func touchLoginButton() {
         let profileVC = ProfileViewController()
-        navigationController?.setViewControllers([profileVC], animated: true)
+        if let login = loginField.text, !login.isEmpty, let user = currentUserService?.signIn(login: login) {
+            profileVC.user = user
+            navigationController?.setViewControllers([profileVC], animated: true)
+        } else {
+            loginField.text = ""
+            passwordField.text = ""
+            errorLabel.isHidden = false
+        }
+        loginField.resignFirstResponder()
+        passwordField.resignFirstResponder()
     }
 
     @objc private func keyboardShow(notification: NSNotification) {
@@ -194,4 +231,10 @@ extension LoginViewController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        errorLabel.isHidden = true
+        return true
+    }
+    
 }
