@@ -9,6 +9,7 @@ final class LoginViewController: UIViewController {
     
     var currentUserService: UserService?
     
+    var delegate: LoginViewControllerDelegate?
     // MARK: Visual content
     
     var loginScrollView: UIScrollView = {
@@ -94,17 +95,6 @@ final class LoginViewController: UIViewController {
         return password
     }()
     
-    var errorLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Invalid login"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.textColor = UIColor.red
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.isHidden = true
-        return label
-    }()
-    
     // MARK: - Setup section
     
     override func viewDidLoad() {
@@ -121,7 +111,7 @@ final class LoginViewController: UIViewController {
         view.addSubview(loginScrollView)
         loginScrollView.addSubview(contentView)
         
-        contentView.addSubviews(vkLogo, loginStackView, loginButton, errorLabel)
+        contentView.addSubviews(vkLogo, loginStackView, loginButton)
         
         loginStackView.addArrangedSubview(loginField)
         loginStackView.addArrangedSubview(passwordField)
@@ -130,6 +120,14 @@ final class LoginViewController: UIViewController {
         passwordField.delegate = self
         
         setupConstraints()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnScreen))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func tapOnScreen() {
+        loginField.resignFirstResponder()
+        passwordField.resignFirstResponder()
     }
 
     private func setupConstraints() {
@@ -160,12 +158,7 @@ final class LoginViewController: UIViewController {
             loginButton.topAnchor.constraint(equalTo: loginStackView.bottomAnchor, constant: LayoutConstants.indent),
             loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.leadingMargin),
             loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: LayoutConstants.trailingMargin),
-            loginButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            errorLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 8),
-            errorLabel.leadingAnchor.constraint(equalTo: loginButton.leadingAnchor),
-            errorLabel.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor),
-            errorLabel.heightAnchor.constraint(equalToConstant: 20)
+            loginButton.heightAnchor.constraint(equalToConstant: 50)
         ] )
     }
     
@@ -198,13 +191,15 @@ final class LoginViewController: UIViewController {
 
     @objc private func touchLoginButton() {
         let profileVC = ProfileViewController()
-        if let login = loginField.text, !login.isEmpty, let user = currentUserService?.signIn(login: login) {
-            profileVC.user = user
+        if let login = loginField.text, !login.isEmpty, let password = passwordField.text, !password.isEmpty, let delegate = delegate, delegate.check(login: login, password: password) {
+            profileVC.user = User(login: login, avatar: nil, fullName: "test", status: "test successfull")
             navigationController?.setViewControllers([profileVC], animated: true)
         } else {
             loginField.text = ""
             passwordField.text = ""
-            errorLabel.isHidden = false
+            let alert = UIAlertController(title: "Error", message: "Invalid login", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+            present(alert, animated: true)
         }
         loginField.resignFirstResponder()
         passwordField.resignFirstResponder()
@@ -231,10 +226,4 @@ extension LoginViewController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
-    
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        errorLabel.isHidden = true
-        return true
-    }
-    
 }
