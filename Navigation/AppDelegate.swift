@@ -16,6 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // create tab bar with feed and profile items
         let loginVC = LoginViewController()
+        let factory = MyLoginFactory()
+        loginVC.delegate = MyLoginFactory().makeLoginInspector()
         let profileNC = UINavigationController(rootViewController: loginVC)
         profileNC.tabBarItem = UITabBarItem(title: "Profile",
                                             image: UIImage(systemName: "person.crop.circle"),
