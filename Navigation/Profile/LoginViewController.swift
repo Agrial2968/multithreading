@@ -105,6 +105,10 @@ final class LoginViewController: UIViewController {
         
         setupViews()
         configureUserService()
+        #if DEBUG
+        loginField.text = "agrial"
+        passwordField.text = "1234"
+        #endif
     }
     
     private func setupViews() {
