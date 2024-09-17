@@ -33,13 +33,9 @@ final class FeedViewController: UIViewController {
     }
     
     private func addPostButton(title: String, color: UIColor, to view: UIStackView, selector: Selector) {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(title, for: .normal)
+        let button = CustomButton(title: title, titleColor: .white, action: selector, target: self)
         button.backgroundColor = color
-        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = LayoutConstants.cornerRadius
-        button.addTarget(self, action: selector, for: .touchUpInside)
         view.addArrangedSubview(button)
     }
     
