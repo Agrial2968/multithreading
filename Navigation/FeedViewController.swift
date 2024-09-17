@@ -8,7 +8,11 @@ import UIKit
 
 class FeedModel {
     
-    var secretWord = "peace"
+    private let secretWord: String
+    
+    init(secretWord: String = "peace") {
+        self.secretWord = secretWord
+    }
     
     func check(word: String) -> Bool {
         self.secretWord == word
@@ -18,31 +22,31 @@ class FeedModel {
 
 final class FeedViewController: UIViewController {
     
-    let feedTextField = UITextField()
+    private let feedModel = FeedModel(secretWord: "peace")
     
-    lazy var checkGuessButton = CustomButton(title: "Check", titleColor: .black, action: #selector (checkGuessButtonTap), target: self)
-
-    @objc func checkGuessButtonTap() {
-        guard let text = feedTextField.text, !text.isEmpty else { return }
-        
-        if feedModel.check(word: text) {
-            resultLabel.backgroundColor = .green
-            
-        } else {
-            resultLabel.backgroundColor = .red
-        }
-        
-    }
-    
-    var resultLabel: UILabel = {
-            let label = UILabel()
-            label.translatesAutoresizingMaskIntoConstraints = false
-            return label
+    private let feedTextField: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.backgroundColor = .systemBackground
+        textField.layer.cornerRadius = LayoutConstants.cornerRadius
+        return textField
     }()
     
+    private lazy var checkGuessButton: CustomButton = {
+        let button = CustomButton(title: "Check", titleColor: .white, action: #selector (checkGuessButtonTap), target: self)
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = LayoutConstants.cornerRadius
+        return button
+    }()
     
-    let feedModel = FeedModel()
-    
+    private var resultLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.clipsToBounds = true
+        label.backgroundColor = .yellow
+        label.layer.cornerRadius = LayoutConstants.cornerRadius
+        return label
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,9 +56,8 @@ final class FeedViewController: UIViewController {
         createSubView()
     }
     
-    func createSubView() {
+    private func createSubView() {
         view.addSubview(feedTextField)
-        feedTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(checkGuessButton)
         view.addSubview(resultLabel)
         
@@ -86,15 +89,6 @@ final class FeedViewController: UIViewController {
             resultLabel.widthAnchor.constraint(equalToConstant: 50)
             
         ])
-        
-        feedTextField.backgroundColor = .systemBackground
-        feedTextField.layer.cornerRadius = LayoutConstants.cornerRadius
-        checkGuessButton.backgroundColor = .red
-        checkGuessButton.layer.cornerRadius = LayoutConstants.cornerRadius
-        resultLabel.clipsToBounds = true
-        resultLabel.backgroundColor = .yellow
-        resultLabel.layer.cornerRadius = LayoutConstants.cornerRadius
-        
         addPostButton(title: "Post number One", color: .systemPurple, to: stackView, selector: #selector(tapPostButton))
         addPostButton(title: "Post number Two", color: .systemIndigo, to: stackView, selector: #selector(tapPostButton))
     }
@@ -106,12 +100,22 @@ final class FeedViewController: UIViewController {
         view.addArrangedSubview(button)
     }
     
-    @objc func tapPostButton() {
+    @objc private func tapPostButton() {
         let post = postExamples[0]
         
         let postVC = PostViewController()
         postVC.post = post
         navigationController?.pushViewController(postVC, animated: true)
+    }
+    
+    @objc private func checkGuessButtonTap() {
+        guard let text = feedTextField.text, !text.isEmpty else { return }
+        
+        if feedModel.check(word: text) {
+            resultLabel.backgroundColor = .green
+        } else {
+            resultLabel.backgroundColor = .red
+        }
     }
 }
                                   
