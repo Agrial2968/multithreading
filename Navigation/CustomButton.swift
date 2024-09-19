@@ -9,12 +9,14 @@ import Foundation
 import UIKit
 
 class CustomButton: UIButton {
-    init(title: String, titleColor: UIColor, action: Selector, target: UIViewController?) {
+    init(title: String? = nil, titleColor: UIColor? = nil, action: Selector? = nil, target: UIViewController? = nil) {
         super.init(frame: .zero)
         self.setTitle(title, for: .normal)
         self.setTitleColor(titleColor, for: .normal)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.addTarget(target, action: action, for: .touchUpInside)
+        if let action = action {
+            self.addTarget(target, action: action, for: .touchUpInside)
+        }
     }
     
     required init?(coder: NSCoder) {

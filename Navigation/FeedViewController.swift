@@ -10,19 +10,30 @@ class FeedModel {
     
     private let secretWord: String
     
-    init(secretWord: String = "peace") {
+    init(secretWord: String) {
         self.secretWord = secretWord
     }
     
-    func check(word: String) -> Bool {
-        self.secretWord == word
+    func check(word: String) -> UIColor {
+        return self.secretWord == word ? .green : .red
     }
 }
 
 
 final class FeedViewController: UIViewController {
     
-    private let feedModel = FeedModel(secretWord: "peace")
+    var viewModel: FeedViewModel
+        
+    init(viewModel: FeedViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+    
+    private var feedModel = FeedModel(secretWord: "")
     
     private let feedTextField: UITextField = {
         let textField = UITextField()
@@ -32,12 +43,7 @@ final class FeedViewController: UIViewController {
         return textField
     }()
     
-    private lazy var checkGuessButton: CustomButton = {
-        let button = CustomButton(title: "Check", titleColor: .white, action: #selector (checkGuessButtonTap), target: self)
-        button.backgroundColor = .systemBlue
-        button.layer.cornerRadius = LayoutConstants.cornerRadius
-        return button
-    }()
+    private var checkGuessButton = CustomButton()
     
     private var resultLabel: UILabel = {
         let label = UILabel()
@@ -52,13 +58,21 @@ final class FeedViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .systemTeal
-        
-        createSubView()
+        setupUI(with: viewModel)
     }
     
-    private func createSubView() {
-        view.addSubview(feedTextField)
+    private func setupUI(with viewModel: FeedViewModel) {
+        ///checkButton
+        checkGuessButton = CustomButton(title: viewModel.checkButtonStyle.title, titleColor: viewModel.checkButtonStyle.titleColor, action: #selector (checkGuessButtonTap), target: self)
+        checkGuessButton.backgroundColor = viewModel.checkButtonStyle.color
+        checkGuessButton.layer.cornerRadius = LayoutConstants.cornerRadius
         view.addSubview(checkGuessButton)
+        
+        ///Secret Word feed model
+        feedModel = FeedModel(secretWord: viewModel.secretWord)
+        
+        ///Other views
+        view.addSubview(feedTextField)
         view.addSubview(resultLabel)
         
         let stackView = UIStackView()
@@ -89,8 +103,11 @@ final class FeedViewController: UIViewController {
             resultLabel.widthAnchor.constraint(equalToConstant: 50)
             
         ])
-        addPostButton(title: "Post number One", color: .systemPurple, to: stackView, selector: #selector(tapPostButton))
-        addPostButton(title: "Post number Two", color: .systemIndigo, to: stackView, selector: #selector(tapPostButton))
+        
+        ///postButtons
+        for i in 0...viewModel.postButtonStyles.count-1 {
+            addPostButton(title: viewModel.postButtonStyles[i].title, color: viewModel.postButtonStyles[i].color, to: stackView, selector: #selector(tapPostButton))
+        }
     }
     
     private func addPostButton(title: String, color: UIColor, to view: UIStackView, selector: Selector) {
@@ -109,13 +126,8 @@ final class FeedViewController: UIViewController {
     }
     
     @objc private func checkGuessButtonTap() {
+        feedTextField.resignFirstResponder()
         guard let text = feedTextField.text, !text.isEmpty else { return }
-        
-        if feedModel.check(word: text) {
-            resultLabel.backgroundColor = .green
-        } else {
-            resultLabel.backgroundColor = .red
-        }
+        resultLabel.backgroundColor = feedModel.check(word: text)
     }
 }
-                                  
