@@ -23,15 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                             image: UIImage(systemName: "person.crop.circle"),
                                             selectedImage: UIImage(systemName: "person.crop.circle.fill"))
         
-        let feedModel = FeedViewModel(
-            checkButtonStyle: FeedViewModel.ButtonStyle(title: "Check Me!", color: .systemBlue, titleColor: .white),
-            postButtonStyles: [
-                FeedViewModel.ButtonStyle(title: "Post number One", color: .systemPurple, titleColor: .black),
-                FeedViewModel.ButtonStyle(title: "Post number Two", color: .systemIndigo, titleColor: .black)
-            ],
-            secretWord: "peace")
-        
-        let feedVC = FeedViewController(viewModel: feedModel)
+        let feedVC = FeedViewController()
         let feedNC = UINavigationController(rootViewController: feedVC)
         feedNC.tabBarItem = UITabBarItem(title: "Feed",
                                          image: UIImage(systemName: "text.bubble"),

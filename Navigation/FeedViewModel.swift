@@ -7,24 +7,25 @@
 
 import UIKit
 
+//Game model view + logic
 class FeedViewModel {
     
-    struct ButtonStyle {
-        var title: String
-        var color: UIColor
-        var titleColor: UIColor
+    private var feedModel: FeedModel
+    
+    init(feedModel: FeedModel) {
+        self.feedModel = feedModel
     }
     
-    var checkButtonStyle: ButtonStyle
-    
-    var postButtonStyles: [ButtonStyle]
-    
+    func check(word: String) -> UIColor {
+        return self.feedModel.secretWord == word ? .green : .red
+    }
+}
+
+//Game model
+class FeedModel {
     var secretWord: String
     
-    
-    init(checkButtonStyle: ButtonStyle, postButtonStyles: [ButtonStyle], secretWord: String) {
-        self.checkButtonStyle = checkButtonStyle
-        self.postButtonStyles = postButtonStyles
+    init(secretWord: String) {
         self.secretWord = secretWord
     }
 }
