@@ -4,11 +4,16 @@
 //
 
 import UIKit
+import iOSIntPackage
 
 class PhotosViewController: UIViewController {
     
     let photoIdent = "photoCell"
-
+    
+    let imagePublisherFacade = ImagePublisherFacade()
+    
+    var images: [UIImage] = []
+    
     // MARK: Visual objects
     
     lazy var layout: UICollectionViewFlowLayout = {
@@ -38,6 +43,13 @@ class PhotosViewController: UIViewController {
         self.photosCollectionView.dataSource = self
         self.photosCollectionView.delegate = self
         setupConstraints()
+        
+        imagePublisherFacade.subscribe(self)
+        imagePublisherFacade.addImagesWithTimer(time: 0.5, repeat: 10, userImages: Photos.shared.examples)
+    }
+    
+    deinit {
+        imagePublisherFacade.removeSubscription(for: self)
     }
     
     private func setupConstraints() {
@@ -75,13 +87,19 @@ extension PhotosViewController: UICollectionViewDelegateFlowLayout {
 extension PhotosViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Photos.shared.examples.count
+        return images.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: photoIdent, for: indexPath) as? PhotosCollectionViewCell else { return UICollectionViewCell()}
-        cell.configCellCollection(photo: Photos.shared.examples[indexPath.item])
+        cell.configCellCollection(photo: images[indexPath.item])
         return cell
     }
 }
 
+extension PhotosViewController: ImageLibrarySubscriber {
+    func receive(images: [UIImage]) {
+        self.images = images
+        self.photosCollectionView.reloadData()
+    }
+}
