@@ -37,8 +37,8 @@ class PhotosCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Run loop
     
-    public func configCellCollection(photo: UIImage) {
-        self.photo.image = photo
+    public func configCellCollection(photo: CGImage) {
+        self.photo.image = UIImage(cgImage: photo)
     }
 }
 

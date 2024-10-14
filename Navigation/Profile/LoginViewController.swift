@@ -5,7 +5,11 @@
 
 import UIKit
 
-final class LoginViewController: UIViewController {
+final class LoginViewController: UIViewController, BruteManagerDelegate {
+
+    var currentUserService: UserService?
+    
+    var delegate: LoginViewControllerDelegate?
     
     // MARK: Visual content
     
@@ -92,22 +96,47 @@ final class LoginViewController: UIViewController {
         return password
     }()
     
+    var bruteButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .gray
+        button.setTitle("Brute Force", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(nil, action: #selector(touchBruteButton), for: .touchUpInside)
+        button.layer.cornerRadius = LayoutConstants.cornerRadius
+        button.clipsToBounds = true
+        return button
+    }()
+    
+    let bruteManager = BruteManager()
+    
+    let activityIndicator = UIActivityIndicatorView(style: .medium)
     // MARK: - Setup section
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        bruteManager.delegate = self
+        
         view.backgroundColor = .systemBackground
         navigationController?.navigationBar.isHidden = true
         
         setupViews()
+        configureUserService()
+        #if DEBUG
+        loginField.text = "agrial"
+        passwordField.text = "1234"
+        #endif
     }
     
     private func setupViews() {
         view.addSubview(loginScrollView)
+        view.addSubview(activityIndicator)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        
         loginScrollView.addSubview(contentView)
         
-        contentView.addSubviews(vkLogo, loginStackView, loginButton)
+        contentView.addSubviews(vkLogo, loginStackView, loginButton, bruteButton)
         
         loginStackView.addArrangedSubview(loginField)
         loginStackView.addArrangedSubview(passwordField)
@@ -116,38 +145,63 @@ final class LoginViewController: UIViewController {
         passwordField.delegate = self
         
         setupConstraints()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnScreen))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func tapOnScreen() {
+        loginField.resignFirstResponder()
+        passwordField.resignFirstResponder()
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-
+            
             loginScrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             loginScrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             loginScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             loginScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            
             contentView.topAnchor.constraint(equalTo: loginScrollView.topAnchor),
             contentView.trailingAnchor.constraint(equalTo: loginScrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: loginScrollView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: loginScrollView.leadingAnchor),
             contentView.centerXAnchor.constraint(equalTo: loginScrollView.centerXAnchor),
             contentView.centerYAnchor.constraint(equalTo: loginScrollView.centerYAnchor),
-
+            
             vkLogo.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 120),
             vkLogo.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             vkLogo.heightAnchor.constraint(equalToConstant: 100),
             vkLogo.widthAnchor.constraint(equalToConstant: 100),
-
+            
             loginStackView.topAnchor.constraint(equalTo: vkLogo.bottomAnchor, constant: 120),
             loginStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.leadingMargin),
             loginStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: LayoutConstants.trailingMargin),
             loginStackView.heightAnchor.constraint(equalToConstant: 100),
-
+            
             loginButton.topAnchor.constraint(equalTo: loginStackView.bottomAnchor, constant: LayoutConstants.indent),
             loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.leadingMargin),
             loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: LayoutConstants.trailingMargin),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            bruteButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: LayoutConstants.indent),
+            bruteButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.leadingMargin),
+            bruteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: LayoutConstants.trailingMargin),
+            bruteButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            activityIndicator.centerXAnchor.constraint(equalTo: passwordField.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: passwordField.centerYAnchor)
         ])
+    }
+    
+    private func configureUserService() {
+        
+         #if DEBUG
+        currentUserService = TestUserService(user: User(login: "test", avatar: UIImage(named: "19"), fullName: "Test Agrial", status: "Test success"))
+         #else
+        currentUserService = CurrentUserService(user: User(login: "agrial", avatar: UIImage(named: "20"), fullName: "Agrial West", status: "Ready to deploy"))
+         #endif
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -167,10 +221,45 @@ final class LoginViewController: UIViewController {
     }
     
     // MARK: - Event handlers
-
+    
     @objc private func touchLoginButton() {
         let profileVC = ProfileViewController()
-        navigationController?.setViewControllers([profileVC], animated: true)
+        if let login = loginField.text, !login.isEmpty, let password = passwordField.text, !password.isEmpty, let delegate = delegate, delegate.check(login: login, password: password) {
+            profileVC.user = User(login: login, avatar: nil, fullName: "test", status: "test successfull")
+            navigationController?.setViewControllers([profileVC], animated: true)
+        } else {
+            loginField.text = ""
+            passwordField.text = ""
+            let alert = UIAlertController(title: "Error", message: "Invalid login", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+            present(alert, animated: true)
+        }
+        loginField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+    }
+    
+    @objc private func touchBruteButton() {
+        DispatchQueue.global(qos: .background).async {
+            self.bruteManager.bruteForce(passwordToUnlock: "1231")
+        }
+    }
+    
+    //MARK: - BruteManagerDelegate
+    
+    func startBrute() {
+        DispatchQueue.main.async {
+            self.view.backgroundColor = .red
+            self.activityIndicator.startAnimating()
+        }
+    }
+    
+    func finishBrute(with password: String) {
+        DispatchQueue.main.async {
+            self.view.backgroundColor = .green
+            self.activityIndicator.stopAnimating()
+            self.passwordField.text = password
+            self.passwordField.isSecureTextEntry = false
+        }
     }
 
     @objc private func keyboardShow(notification: NSNotification) {
