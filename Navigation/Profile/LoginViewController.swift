@@ -95,6 +95,8 @@ final class LoginViewController: UIViewController {
         return password
     }()
     
+    private var timer: Timer?
+    
     // MARK: - Setup section
     
     override func viewDidLoad() {
@@ -105,10 +107,33 @@ final class LoginViewController: UIViewController {
         
         setupViews()
         configureUserService()
+        configureTimer()
         #if DEBUG
         loginField.text = "agrial"
         passwordField.text = "1234"
         #endif
+    }
+    
+    var isLogoFlipped = false
+    
+    private func configureTimer() {
+       timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+           print("PoP")
+           
+           let x = CGFloat.random(in: -2...1)
+           let y = CGFloat.random(in: -1...2)
+           if !self.isLogoFlipped {
+               self.isLogoFlipped = true
+               UIView.animate(withDuration: 0.3, animations: {
+                   self.vkLogo.transform = self.loginButton.transform.scaledBy(x: x, y: y)
+               })
+           } else {
+               self.isLogoFlipped = false
+               UIView.animate(withDuration: 0.3 ,animations: {
+                   self.vkLogo.transform = .identity
+               })
+           }
+       }
     }
     
     private func setupViews() {
@@ -194,8 +219,8 @@ final class LoginViewController: UIViewController {
     // MARK: - Event handlers
 
     @objc private func touchLoginButton() {
-        let profileVC = ProfileViewController()
         if let login = loginField.text, !login.isEmpty, let password = passwordField.text, !password.isEmpty, let delegate = delegate, delegate.check(login: login, password: password) {
+            let profileVC = ProfileViewController()
             profileVC.user = User(login: login, avatar: nil, fullName: "test", status: "test successfull")
             navigationController?.setViewControllers([profileVC], animated: true)
         } else {
@@ -207,6 +232,7 @@ final class LoginViewController: UIViewController {
         }
         loginField.resignFirstResponder()
         passwordField.resignFirstResponder()
+        timer?.invalidate()
     }
 
     @objc private func keyboardShow(notification: NSNotification) {
