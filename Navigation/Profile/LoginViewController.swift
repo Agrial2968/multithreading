@@ -125,7 +125,7 @@ final class LoginViewController: UIViewController {
            if !self.isLogoFlipped {
                self.isLogoFlipped = true
                UIView.animate(withDuration: 0.3, animations: {
-                   self.vkLogo.transform = self.loginButton.transform.scaledBy(x: x, y: y)
+                   self.vkLogo.transform = self.vkLogo.transform.scaledBy(x: x, y: y)
                })
            } else {
                self.isLogoFlipped = false
