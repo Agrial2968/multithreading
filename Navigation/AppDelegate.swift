@@ -16,6 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // create tab bar with feed and profile items
         let loginVC = LoginViewController()
+        let factory = MyLoginFactory()
+        loginVC.delegate = factory.makeLoginInspector()
         let profileNC = UINavigationController(rootViewController: loginVC)
         profileNC.tabBarItem = UITabBarItem(title: "Profile",
                                             image: UIImage(systemName: "person.crop.circle"),
@@ -35,6 +37,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
+        
+        if let randomConfiguration = AppConfiguration.allCases.randomElement() {
+            NetworkManager.request(for: randomConfiguration)
+        }
+        
         
         return true
     }
