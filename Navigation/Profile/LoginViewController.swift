@@ -118,8 +118,6 @@ final class LoginViewController: UIViewController {
     
     private func configureTimer() {
        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-           print("PoP")
-           
            let x = CGFloat.random(in: -2...1)
            let y = CGFloat.random(in: -1...2)
            if !self.isLogoFlipped {

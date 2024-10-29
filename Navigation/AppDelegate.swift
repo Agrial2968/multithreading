@@ -38,6 +38,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
         
+        if let randomConfiguration = AppConfiguration.allCases.randomElement() {
+            NetworkManager.request(for: randomConfiguration)
+        }
+        
+        
         return true
     }
 }

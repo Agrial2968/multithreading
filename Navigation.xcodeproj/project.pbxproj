@@ -30,6 +30,8 @@
 		5434784B2C6BD62F00FB81F0 /* StorageService.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 543478442C6BD62F00FB81F0 /* StorageService.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		543478502C6BD65300FB81F0 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3601A2C128495DDF000D261A /* Post.swift */; };
 		547154192C908BC80082FDDD /* iOSIntPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 547154182C908BC80082FDDD /* iOSIntPackage */; };
+		54AF74F92CD12DD300D40FBD /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54AF74F82CD12DD300D40FBD /* NetworkManager.swift */; };
+		54AF74FB2CD12E7700D40FBD /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54AF74FA2CD12E7700D40FBD /* AppConfiguration.swift */; };
 		54BB86822C89E3B100BF2E20 /* Cheker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BB86812C89E3B100BF2E20 /* Cheker.swift */; };
 		54D33E3D2C778F2C0057D583 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D33E3C2C778F2C0057D583 /* User.swift */; };
 		54F59ADF2C80935500ED8A66 /* TestUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F59ADE2C80935500ED8A66 /* TestUserService.swift */; };
@@ -83,6 +85,8 @@
 		36C5F0642850C9D1005EFC6C /* PostExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostExamples.swift; sourceTree = "<group>"; };
 		543478442C6BD62F00FB81F0 /* StorageService.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StorageService.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		543478462C6BD62F00FB81F0 /* StorageService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StorageService.h; sourceTree = "<group>"; };
+		54AF74F82CD12DD300D40FBD /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		54AF74FA2CD12E7700D40FBD /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		54BB86812C89E3B100BF2E20 /* Cheker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cheker.swift; sourceTree = "<group>"; };
 		54D33E3C2C778F2C0057D583 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		54F59ADE2C80935500ED8A66 /* TestUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUserService.swift; sourceTree = "<group>"; };
@@ -139,6 +143,8 @@
 				3601A2B028490DDF000D261A /* Assets.xcassets */,
 				3601A2B228490DDF000D261A /* LaunchScreen.storyboard */,
 				3601A2B528490DDF000D261A /* Info.plist */,
+				54AF74F82CD12DD300D40FBD /* NetworkManager.swift */,
+				54AF74FA2CD12E7700D40FBD /* AppConfiguration.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -310,6 +316,8 @@
 				54F59ADF2C80935500ED8A66 /* TestUserService.swift in Sources */,
 				36C5F05E2850B4A6005EFC6C /* PhotoExamples.swift in Sources */,
 				3601A2C7284A776A000D261A /* ProfileHeaderView.swift in Sources */,
+				54AF74FB2CD12E7700D40FBD /* AppConfiguration.swift in Sources */,
+				54AF74F92CD12DD300D40FBD /* NetworkManager.swift in Sources */,
 				36C5F0652850C9D1005EFC6C /* PostExamples.swift in Sources */,
 				36C5F0612850B723005EFC6C /* PhotosViewController.swift in Sources */,
 				36528E39284F700900965BA4 /* ExtensionUIImage.swift in Sources */,
